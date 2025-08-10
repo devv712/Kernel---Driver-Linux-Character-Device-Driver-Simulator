@@ -1,4 +1,4 @@
-# Kernel---Driver-Linux-Character-Device-Driver-Simulator
+# Kernel-Driver: Linux Character Device Driver Simulator
 Overview
 This project involved building a basic Linux character device driver from scratch to explore low-level operating system internals, including the Linux kernel module system, user-kernel communication mechanisms, and device file interface. The implementation adhered to Linux kernel coding conventions and used a modular design to make the driver reusable and extendable.
 
