@@ -1,0 +1,461 @@
+/* Custom CSS for Linux Character Device Driver Simulator */
+
+:root {
+    --primary-color: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --dark-color: #343a40;
+    --terminal-bg: #1e1e1e;
+    --terminal-text: #00ff00;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: var(--dark-color);
+    color: white;
+    font-weight: 600;
+}
+
+/* Terminal/Kernel logs styling */
+.kernel-logs {
+    background-color: var(--terminal-bg);
+    color: var(--terminal-text);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #495057;
+}
+
+.kernel-log-entry {
+    margin-bottom: 2px;
+    word-wrap: break-word;
+}
+
+.log-timestamp {
+    color: #6c757d;
+}
+
+.log-level-info {
+    color: #17a2b8;
+}
+
+.log-level-warning {
+    color: #ffc107;
+}
+
+.log-level-error {
+    color: #dc3545;
+}
+
+.log-level-debug {
+    color: #6f42c1;
+}
+
+/* Statistics cards */
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+/* /proc stats styling */
+.proc-stats {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #495057;
+    padding: 10px;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Button styling */
+.btn-group .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+/* Progress bar customization */
+.progress {
+    height: 8px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #28a745 0%, #ffc107 50%, #dc3545 100%);
+    transition: width 0.3s ease;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 11px;
+}
+
+/* Input group styling */
+.input-group .form-control {
+    font-size: 14px;
+}
+
+/* Chart container */
+#throughputChart {
+    max-height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 5px;
+        border-radius: 4px !important;
+    }
+}
+
+/* Animation for active operations */
+.operation-active {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Status indicators */
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.status-active { background-color: var(--success-color); }
+.status-idle { background-color: var(--warning-color); }
+.status-error { background-color: var(--danger-color); }
+
+/* Tooltip styling */
+.tooltip {
+    font-size: 12px;
+}
+
+/* Custom scrollbar for logs */
+.kernel-logs::-webkit-scrollbar {
+    width: 6px;
+}
+
+.kernel-logs::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.kernel-logs::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
+
+.kernel-logs::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Loading spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner-border {
+    color: var(--primary-color);
+}
+
+/* Educational section */
+.card-body ul {
+    padding-left: 20px;
+}
+
+.card-body li {
+    margin-bottom: 3px;
+}
+
+/* Toast styling */
+.toast {
+    min-width: 300px;
+}
+
+.toast-success .toast-header {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.toast-error .toast-header {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.toast-warning .toast-header {
+    background-color: var(--warning-color);
+    color: black;
+}
+
+/* Device status indicator */
+#module-status {
+    transition: all 0.3s ease;
+}
+
+.module-unloaded {
+    background-color: var(--danger-color) !important;
+}
+
+/* Concurrent access indicators */
+.concurrent-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 3px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+/* Advanced Features Styling */
+.mini-stat-card {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.mini-stat-value {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.mini-stat-label {
+    font-size: 10px;
+    opacity: 0.9;
+    text-transform: uppercase;
+}
+
+.process-monitor {
+    background-color: #1e1e1e;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 8px;
+    border-radius: 4px;
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #495057;
+}
+
+.process-entry {
+    margin-bottom: 2px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.process-pid {
+    color: #ffc107;
+}
+
+.process-name {
+    color: #17a2b8;
+}
+
+.process-status {
+    color: #28a745;
+}
+
+/* Memory visualization */
+.memory-map {
+    display: flex;
+    height: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.memory-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
+.memory-kernel { background-color: #dc3545; }
+.memory-buffer { background-color: #28a745; }
+.memory-free { background-color: #6c757d; }
+.memory-stack { background-color: #007bff; }
+.memory-heap { background-color: #ffc107; color: black; }
+
+/* Network simulation styling */
+.network-packet {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 2px;
+    animation: packet-flow 2s linear infinite;
+}
+
+.packet-tx { background-color: #28a745; }
+.packet-rx { background-color: #007bff; }
+.packet-error { background-color: #dc3545; }
+
+@keyframes packet-flow {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(200px); opacity: 0; }
+}
+
+/* Interrupt simulation */
+.interrupt-flash {
+    animation: interrupt-blink 0.5s ease-in-out 3;
+}
+
+@keyframes interrupt-blink {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(220, 53, 69, 0.3); }
+}
+
+/* DMA transfer visualization */
+.dma-transfer {
+    position: relative;
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.dma-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #28a745);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Advanced metrics modal */
+.metrics-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.metrics-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+/* Hex dump styling */
+.hex-dump {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.hex-address { color: #6c757d; }
+.hex-data { color: #495057; }
+.hex-ascii { color: #007bff; }
+
+/* Performance indicators */
+.perf-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.perf-excellent { background-color: #28a745; }
+.perf-good { background-color: #17a2b8; }
+.perf-warning { background-color: #ffc107; }
+.perf-critical { background-color: #dc3545; }
+
+/* System load bars */
+.load-bar {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 2px 0;
+}
+
+.load-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 3px;
+}
+
+.load-cpu { background-color: #007bff; }
+.load-memory { background-color: #28a745; }
+.load-io { background-color: #ffc107; }

@@ -1,0 +1,203 @@
+Implementation Plan – Advanced Linux Character Device Driver with Real-Time Monitoring Tool
+Phase 1 – Core Driver Setup
+Objective: Build the foundation — a working character device driver with basic operations.
+
+Steps:
+
+Module Skeleton
+
+Create a loadable kernel module (.ko) with init and exit functions.
+
+Register a character device using alloc_chrdev_region.
+
+Basic File Operations
+
+Implement open(), read(), write(), release().
+
+Use a fixed-size kernel buffer for data storage.
+
+Module Management
+
+Enable loading (insmod) and unloading (rmmod) with dmesg logging.
+
+Testing
+
+Write a minimal user-space C program to open /dev/mychardev, write data, and read it back.
+
+Phase 2 – Advanced Kernel Features
+Objective: Add features that make it feel like a real driver.
+
+Steps:
+
+IOCTL Support
+
+Implement unlocked_ioctl() for custom control commands:
+
+CLEAR_BUFFER
+
+SET_BUFFER_SIZE
+
+ENABLE_LOGGING
+
+Asynchronous I/O
+
+Implement poll() to allow non-blocking reads/writes.
+
+Use wait queues to notify processes when data is available.
+
+Thread-Safety
+
+Protect critical sections with mutex or spinlocks.
+
+Handle concurrent read/write from multiple processes safely.
+
+Statistics Tracking
+
+Keep counters for:
+
+Bytes read
+
+Bytes written
+
+Number of open calls
+
+Procfs / Sysfs Integration
+
+Create /proc/mychardev_stats or /sys/class/mychardev/ to expose stats.
+
+Phase 3 – User-Space Monitoring Tool
+Objective: Build a CLI utility to interact with the driver in real time.
+
+Steps:
+
+CLI Commands
+
+Read from the device (read mode).
+
+Write to the device (write mode).
+
+Issue IOCTL commands for configuration.
+
+Live Monitoring
+
+Periodically fetch /proc/mychardev_stats and display:
+
+Read/write rate
+
+Open count
+
+Optional: Use ncurses for a live updating terminal dashboard.
+
+Logging
+
+Save stats to CSV for graph plotting.
+
+Optional: Create Python script to plot usage over time.
+
+Phase 4 – Testing & Validation
+Objective: Ensure stability, performance, and correctness.
+
+Steps:
+
+Functional Testing
+
+Verify all file operations.
+
+Test IOCTL commands.
+
+Check asynchronous I/O behavior.
+
+Stress Testing
+
+Use multiple processes reading/writing simultaneously.
+
+Write automated shell scripts to loop write/read operations.
+
+Error Handling
+
+Attempt invalid operations (reading empty buffer, large writes).
+
+Ensure safe handling without kernel crashes (no Oops messages).
+
+Performance Measurement
+
+Measure read/write latency.
+
+Measure CPU usage under high load.
+
+Kernel Code Structure
+bash
+Copy
+Edit
+mychardev/
+│
+├── mychardev.c        # Main kernel module
+├── mychardev.h        # Header file with macros & structs
+├── ioctl_cmds.h       # IOCTL command definitions
+├── Makefile           # For building module
+├── user_tool.c        # CLI monitoring tool
+├── scripts/           # Testing scripts
+└── README.md          # Documentation
+Key Kernel Components:
+
+Initialization: module_init() → registers char device.
+
+Cleanup: module_exit() → unregisters char device.
+
+File Ops Struct: Links open, read, write, release, unlocked_ioctl, poll.
+
+Wait Queues: For async I/O notifications.
+
+Procfs Handler: For stats display.
+
+Testing Workflow
+Build the Module
+
+bash
+Copy
+Edit
+make
+Insert the Module
+
+bash
+Copy
+Edit
+sudo insmod mychardev.ko buffer_size=1024
+Create Device File
+
+bash
+Copy
+Edit
+sudo mknod /dev/mychardev c <major_number> 0
+sudo chmod 666 /dev/mychardev
+Basic Tests
+
+bash
+Copy
+Edit
+echo "Hello" > /dev/mychardev
+cat /dev/mychardev
+Advanced Tests
+
+Run user_tool to:
+
+Change buffer size
+
+Enable logging
+
+Monitor stats live
+
+Perform concurrent reads/writes.
+
+Check Kernel Logs
+
+bash
+Copy
+Edit
+dmesg | tail
+Remove Module
+
+bash
+Copy
+Edit
+sudo rmmod mychardev

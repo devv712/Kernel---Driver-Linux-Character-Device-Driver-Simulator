@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Linux Character Device Driver Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-cpu"></i> Linux Character Device Driver Simulator
+            </span>
+            <div class="d-flex">
+                <span class="badge bg-success me-2" id="module-status">Module Loaded</span>
+                <button class="btn btn-outline-light btn-sm" onclick="toggleModule()">
+                    <i class="bi bi-power"></i> Toggle Module
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Device Operations Panel -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-terminal"></i> Device Operations (/dev/mychardev)</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Write Operation -->
+                        <div class="mb-3">
+                            <label for="writeData" class="form-label">Write Data:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="writeData" placeholder="Enter data to write">
+                                <button class="btn btn-primary" onclick="writeToDevice()">
+                                    <i class="bi bi-arrow-down-circle"></i> Write
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Read Operation -->
+                        <div class="mb-3">
+                            <label class="form-label">Read Data:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="readSize" placeholder="Bytes to read" value="1024">
+                                <button class="btn btn-success" onclick="readFromDevice()">
+                                    <i class="bi bi-arrow-up-circle"></i> Read
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <textarea class="form-control" id="readOutput" rows="3" readonly placeholder="Read output will appear here..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- IOCTL Operations -->
+                        <div class="mb-3">
+                            <label class="form-label">IOCTL Commands:</label>
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-warning" onclick="ioctlCommand('CLEAR_BUFFER')">
+                                    <i class="bi bi-trash"></i> Clear Buffer
+                                </button>
+                                <button class="btn btn-info" onclick="ioctlCommand('SET_BUFFER_SIZE')">
+                                    <i class="bi bi-gear"></i> Set Buffer Size
+                                </button>
+                                <button class="btn btn-secondary" onclick="ioctlCommand('ENABLE_LOGGING')">
+                                    <i class="bi bi-journal-text"></i> Toggle Logging
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Async I/O Testing -->
+                        <div class="mb-3">
+                            <label class="form-label">Asynchronous I/O Testing:</label>
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-outline-primary" onclick="startAsyncRead()">
+                                    <i class="bi bi-clock"></i> Start Async Read
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="stopAsyncRead()">
+                                    <i class="bi bi-stop-circle"></i> Stop Async Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kernel Logs -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6><i class="bi bi-terminal-fill"></i> Kernel Logs (dmesg)</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="kernel-logs" class="kernel-logs"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Monitoring Panel -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-graph-up"></i> Real-time Device Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Stats Overview -->
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value" id="bytes-read">0</div>
+                                    <div class="stat-label">Bytes Read</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value" id="bytes-written">0</div>
+                                    <div class="stat-label">Bytes Written</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value" id="open-count">0</div>
+                                    <div class="stat-label">Open Count</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Charts -->
+                        <div class="mb-3">
+                            <canvas id="throughputChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- Buffer Status -->
+                        <div class="mb-3">
+                            <label class="form-label">Buffer Status:</label>
+                            <div class="progress">
+                                <div class="progress-bar" id="buffer-usage" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted">Buffer Size: <span id="buffer-size">1024</span> bytes</small>
+                        </div>
+
+                        <!-- Concurrent Access Monitor -->
+                        <div class="mb-3">
+                            <label class="form-label">Concurrent Access:</label>
+                            <div class="d-flex justify-content-between">
+                                <span>Active Readers: <span id="active-readers" class="badge bg-info">0</span></span>
+                                <span>Active Writers: <span id="active-writers" class="badge bg-warning">0</span></span>
+                                <span>Queue Length: <span id="queue-length" class="badge bg-secondary">0</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Performance Testing -->
+                        <div class="mb-3">
+                            <label class="form-label">Performance Testing:</label>
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-outline-success" onclick="startStressTest()">
+                                    <i class="bi bi-speedometer2"></i> Start Stress Test
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="stopStressTest()">
+                                    <i class="bi bi-stop"></i> Stop Test
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Memory Management -->
+                        <div class="mb-3">
+                            <label class="form-label">Memory Management:</label>
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-outline-info" onclick="showMemoryMap()">
+                                    <i class="bi bi-memory"></i> Memory Map
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="simulateMemoryLeak()">
+                                    <i class="bi bi-bug"></i> Simulate Leak
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Network Statistics -->
+                        <div class="mb-3">
+                            <label class="form-label">Network Simulation:</label>
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-outline-primary" onclick="startNetworkSim()">
+                                    <i class="bi bi-network-wired"></i> Start Net Sim
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="showNetStats()">
+                                    <i class="bi bi-graph-up-arrow"></i> Net Stats
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- /proc/mychardev_stats -->
+                <div class="card mt-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6><i class="bi bi-file-text"></i> /proc/mychardev_stats</h6>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-light" onclick="exportCSV()">
+                                <i class="bi bi-download"></i> CSV
+                            </button>
+                            <button class="btn btn-sm btn-outline-light" onclick="showAdvancedMetrics()">
+                                <i class="bi bi-bar-chart"></i> Advanced
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <pre id="proc-stats" class="proc-stats"></pre>
+                    </div>
+                </div>
+
+                <!-- Advanced Features Panel -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6><i class="bi bi-gear-wide-connected"></i> Advanced Features</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Interrupt Simulation -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Interrupt Simulation:</label>
+                                <button class="btn btn-sm btn-outline-danger w-100" onclick="simulateInterrupt()">
+                                    <i class="bi bi-lightning"></i> Trigger IRQ
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">DMA Transfer:</label>
+                                <button class="btn btn-sm btn-outline-primary w-100" onclick="simulateDMA()">
+                                    <i class="bi bi-arrow-left-right"></i> DMA Test
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Process Monitoring -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label small">Process Monitor:</label>
+                                <div class="process-monitor" id="process-monitor">
+                                    <small class="text-muted">No active processes</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Load -->
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="mini-stat-card">
+                                    <div class="mini-stat-value" id="cpu-usage">0%</div>
+                                    <div class="mini-stat-label">CPU</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-stat-card">
+                                    <div class="mini-stat-value" id="memory-usage">0%</div>
+                                    <div class="mini-stat-label">Memory</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-stat-card">
+                                    <div class="mini-stat-value" id="io-load">0%</div>
+                                    <div class="mini-stat-label">I/O Load</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Panel -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-book"></i> Kernel Concepts & Implementation Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Character Device Driver</h6>
+                                <ul class="small">
+                                    <li>Dynamic device number allocation</li>
+                                    <li>File operations structure (fops)</li>
+                                    <li>copy_to_user / copy_from_user</li>
+                                    <li>Module lifecycle management</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Synchronization</h6>
+                                <ul class="small">
+                                    <li>Mutex for critical sections</li>
+                                    <li>Wait queues for async I/O</li>
+                                    <li>Spinlocks for atomic operations</li>
+                                    <li>Race condition prevention</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Kernel Features</h6>
+                                <ul class="small">
+                                    <li>IOCTL command handling</li>
+                                    <li>Procfs/sysfs integration</li>
+                                    <li>Interrupt simulation</li>
+                                    <li>Module parameterization</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Toasts -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Device Driver</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="kernel-simulator.js"></script>
+    <script src="monitoring-dashboard.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
